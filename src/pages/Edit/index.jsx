@@ -1,6 +1,6 @@
-import React, {useState, useEffect} from 'react'
-import {PageHeader, Button, message} from 'antd'
-import {useParams, useLocation, useNavigate} from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { PageHeader, Button, message } from 'antd'
+import { useParams, useLocation, useNavigate } from 'react-router-dom'
 // 导入富文本编辑器
 import E from 'wangeditor'
 //引入当前时间组件
@@ -8,7 +8,7 @@ import NowDate from '../../components/NowDate'
 // 引入提交文章表单
 import EditForm from '../../components/EditForm'
 // 引入发布文章的api
-import {addArticles, getArticlesById, changeArticles} from '../../api/articles'
+import { myAxiosApi } from '../../api/http'
 
 let edit = null;
 export default function Edit() {
@@ -36,15 +36,16 @@ export default function Edit() {
 
         // 判断是否是带有id的编辑文章情况
         if (params.id) {
-            getArticlesById(parseInt(params.id)).then(res => {
-                if (res.data.status === 0) {
-                    // 解构赋值请求回来的数据
-                    const {title, cate_id, content} = res.data.data[0]
-                    setTitle(title)
-                    setCateId(cate_id)
-                    edit.txt.html(`<p>${content}<p>`)
-                }
-            })
+            myAxiosApi({ url: `/my/articles/find/${parseInt(params.id)}`, method: 'GET' })
+                .then(res => {
+                    if (res.status === 0) {
+                        // 解构赋值请求回来的数据
+                        const { title, cate_id, content } = res.data[0]
+                        setTitle(title)
+                        setCateId(cate_id)
+                        edit.txt.html(`<p>${content}<p>`)
+                    }
+                })
         }
     }
 
@@ -54,8 +55,8 @@ export default function Edit() {
             initEdit()
         }
         return () => {
-            isMounded = false
             edit.destroy()
+            isMounded = false
         }
     }, [location.pathname])
 
@@ -64,23 +65,26 @@ export default function Edit() {
     const onCreate = (values) => {
         // 修改文章的api接口
         if (params.id) {
-            changeArticles({content, id: params.id, title: values.title}).then(res => {
-                if (res.data.status !== 0) return message.error(res.data.message)
-                message.success(res.data.message)
-                navigate('/articles', {replace: true})
-            })
+            myAxiosApi({ url: "/my/articles/change", method: "POST", data: { content, id: params.id, title: values.title } })
+                .then(res => {
+                    if (res.status !== 0) return message.error(res.message)
+                    message.success(res.message)
+                    navigate('/articles', { replace: true })
+                })
         } else {
             // 增加文章的api接口
-            addArticles({...values, content: content}).then(res => {
-                if (res.data.status === 0) return message.success(res.data.message)
-                message.error(res.data.message)
-            })
+            myAxiosApi({ url: '/my/articles/add', method: 'POST', data: { ...values, content: content } })
+                .then(res => {
+                    if (res.status !== 0) return message.error(res.message)
+                    message.success(res.message)
+                    navigate('/articles', { replace: true })
+                })
         }
         setVisible(false)
     };
 
     // 传递给editform表单的分类信息
-    const cateInfo = {title, cateId}
+    const cateInfo = { title, cateId }
 
     return (
         <div className="edit">
@@ -92,7 +96,7 @@ export default function Edit() {
             />
             <PageHeader
                 title="文章编辑"
-                subTitle={<NowDate/>}
+                subTitle={<NowDate />}
                 onBack={params.id ? () => window.history.back() : null}
                 extra={<Button size='large' type='primary' onClick={() => {
                     if (content === '') message.warn('请输入你的文章')
@@ -104,9 +108,9 @@ export default function Edit() {
                         setVisible(true)
                     }
                 }}>发布文章</Button>}
-                style={{borderBottom: '1px solid rgb(235, 237, 240)'}}
+                style={{ borderBottom: '1px solid rgb(235, 237, 240)' }}
             />
-            <br/>
+            <br />
             <div id='div1' style={{
                 position: 'relative',
                 zIndex: '9'

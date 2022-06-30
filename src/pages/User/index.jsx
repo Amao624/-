@@ -3,7 +3,7 @@ import { Table, Space, Tag, Button, message } from 'antd'
 //导入loading组件
 import Loading from '../../components/Loading'
 //导入api
-import { userApi, changeUserinfo } from '../../api/userinfo'
+import { myAxiosApi } from '../../api/http'
 // 导入修改信息的表单组件
 import ChangeUserinfoForm from '../../components/ChangeUserinfoForm'
 
@@ -19,19 +19,19 @@ export default function User() {
     //loading状态
     const [loading, setLoading] = useState(true)
     // 页面刷新的状态
-    const [refresh, setRefresh] = useState('0')
+    const [refresh, setRefresh] = useState(0)
     // 获取选取按钮对象的用户名
     const [username, setUsername] = useState('')
     // 获取选取按钮对象的邮箱
     const [email, setEmail] = useState('')
     // 获取选取按钮对象的别名
-    const [nickname,setNickname] = useState('')
+    const [nickname, setNickname] = useState('')
 
-    const userinfo = {username,email,nickname}
+    const userinfo = { username, email, nickname }
 
     //获取用户信息方法
     const getUserInfo = () => {
-        userApi().then(res => {
+        myAxiosApi({ url: "/my/userinfo", method: 'GET' }).then(res => {
             if (res.status === 0) {
                 setLoading(false)
                 res.data.forEach((item, index) => {
@@ -50,10 +50,11 @@ export default function User() {
         //启动loading界面
         setLoading(true)
         // 调用给改变用户信息api
-        changeUserinfo({ ...value, id: userId }).then(res => {
-            if (res.data.status === 0) return message.success(res.data.msg)
-            message.error('修改信息失败!')
-        })
+        myAxiosApi({ url: '/my/userinfo', method: "post", data: { ...value, id: userId } })
+            .then(res => {
+                if (res.status === 0) return message.success(res.msg)
+                message.error('修改信息失败!')
+            })
         // 关闭表单框
         setVisible(false)
         // 使页面刷新一次
@@ -98,7 +99,7 @@ export default function User() {
             dataIndex: 'tags',
             render: (index) => (
                 <Tag color='green' key={index}>
-                    在线
+                    管理员
                 </Tag>
             ),
         },
@@ -111,7 +112,7 @@ export default function User() {
                         type="primary"
                         onClick={() => {
                             setVisible(true)
-                            const {id,username,email,nickname} = text
+                            const { id, username, email, nickname } = text
                             setUserId(id)
                             setUsername(username)
                             setEmail(email)

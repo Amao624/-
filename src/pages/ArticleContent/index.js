@@ -1,27 +1,23 @@
-// import {useState, useEffect} from "react";
-import {connect} from "react-redux";
+import { useState, useEffect } from "react";
+// import { getArticlesById } from "../../api/articles"
+import { myAxiosApi } from "../../api/http"
 
-function ArticleContent({title, content}) {
-    // const {title, content} = data
-    // const [artTitle, setArtTitle] = useState('')
-    // const [artContent, setArtContent] = useState('')
-    // useEffect(() => {
-    //     setArtTitle(title)
-    //     setArtContent(content)
-    // }, [])
+export default function ArticleContent({ id }) {
+
+    const [content, setContent] = useState("")
+    const [title, setTitle] = useState("")
+
+    useEffect(() => {
+        myAxiosApi({ url: `/my/articles/find/${id}`, method: 'GET' }).then(res => {
+            setTitle(res.data[0].title)
+            setContent(res.data[0].content)
+        })
+    }, [])
 
     return (
         <div className='content'>
-            <h1 style={{fontSize: '24px', textAlign: 'center', margin: '10px 0'}}>{title}</h1>
+            <h1 style={{ fontSize: '24px', textAlign: 'center', margin: '10px 0' }}>{title}</h1>
             <span>{content}</span>
         </div>
     )
 }
-
-export default connect(
-    state => ({
-        title: state.title,
-        content: state.content,
-    }),
-    null
-)(ArticleContent)

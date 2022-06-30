@@ -3,7 +3,7 @@ import { Table, Space, message, Button, Popconfirm } from 'antd';
 // 引入loading组件
 import Loading from '../../components/Loading'
 //引入api
-import { getArtcate, addArtcates, deleteArtcate, updateArtcate } from '../../api/artcates'
+import { myAxiosApi } from '../../api/http';
 // 导入添加分类表单组件
 import Addcates from '../../components/Addcates'
 // 导入修改分类表单组件
@@ -27,38 +27,41 @@ export default function Artcate() {
   //获取文章分类的函数
   const getCates = () => {
     // 使用getArtcate Api函数
-    getArtcate().then(res => {
-      if (res.data.status === 0) {
-        const newData = JSON.parse(JSON.stringify(res.data.data))
-        newData.forEach((item, index) => {
-          newData[index]['key'] = item.id
-        })
-        setData(newData)
-        setLoading(false)
-        message.success('获取文章分类数据成功！')
-      } else {
-        message.error('获取文章分类数据失败！')
-      }
-    })
+    myAxiosApi({ url: '/my/artcate/cates', method: 'get' })
+      .then(res => {
+        if (res.status === 0) {
+          const newData = JSON.parse(JSON.stringify(res.data))
+          newData.forEach((item, index) => {
+            newData[index]['key'] = item.id
+          })
+          setData(newData)
+          setLoading(false)
+          message.success('获取文章分类数据成功！')
+        } else {
+          message.error('获取文章分类数据失败！')
+        }
+      })
   }
 
   //增加文章分类表单提交成功后的执行函数
   const onFinish = (values) => {
     setLoading(true)
-    addArtcates(values).then((res) => {
-      if (res.data.status === 0) return message.success(res.data.message)
-      message.error(res.data.message)
-    })
+    myAxiosApi({ url: '/my/artcate/addcates', method: 'post', data: values })
+      .then((res) => {
+        if (res.status === 0) return message.success(res.message)
+        message.error(res.message)
+      })
     setRefresh(refresh + 1)
   };
 
   // 更新文章分类表单成功的执行函数
   const onCreate = (values) => {
     setLoading(true)
-    updateArtcate({ ...values, id: userId }).then((res) => {
-      if (res.data.status === 0) return message.success(res.data.message)
-      message.error(res.data.message)
-    })
+    myAxiosApi({ url: '/my/artcate/updatecates', method: 'post', data: { ...values, id: userId } })
+      .then((res) => {
+        if (res.status === 0) return message.success(res.message)
+        message.error(res.message)
+      })
     setVisible(false)
     setRefresh(refresh + 1)
   };
@@ -90,8 +93,6 @@ export default function Artcate() {
     {
       title: '操作',
       key: 'action',
-      // fixed: 'right',
-      // width: 300,
       render: (text) => (
         <Space size="large">
           <Button type='primary' onClick={() => {
@@ -101,10 +102,11 @@ export default function Artcate() {
           <Popconfirm
             title="你确定要删除嘛！"
             onConfirm={() => {
-              deleteArtcate(text.key).then((res) => {
-                if (res.data.status === 0) return message.success(res.data.message)
-                message.error(res.data.message)
-              })
+              myAxiosApi({ url: `/my/artcate/deletecates`, method: 'post', data: { id: text.key } })
+                .then(res => {
+                  if (res.status === 0) return message.success(res.message)
+                  message.error(res.message)
+                })
               setRefresh(refresh + 1)
             }}
             okText="确认"

@@ -3,10 +3,10 @@ import React, { useState, useEffect } from 'react'
 import { Layout, message, Menu, Dropdown, Avatar, Space } from 'antd';
 //导入图标
 import { EditOutlined, UploadOutlined, UserOutlined, VideoCameraOutlined, DownOutlined, SmileOutlined } from '@ant-design/icons';
+// 引入路由
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 //导入api
-import { changePwdApi } from '../../api/userinfo'
-import { userLogoutApi } from '../../api/user'
+import { myAxiosApi } from '../../api/http'
 // 引入表单组件
 import ChangePwdFrom from '../../components/ChangePwdFrom'
 // 导入面包屑组件
@@ -19,13 +19,15 @@ const { Header, Content, Footer, Sider } = Layout;
 //左侧导航区域内容
 function LeftMenu() {
   // 设置路由的跳转
-  let navigate = useNavigate()
-  // 设置当前页面的选中项
-  const [selectKey, setSelectKey] = useState('user')
+  const navigate = useNavigate()
   const location = useLocation()
+  // 设置当前页面的选中项
+  const [selectKey, setSelectKey] = useState('')
+  // 登录者权限获取
+  const [auth, setAuth] = useState('')
 
   // 导航菜单的数组
-  const menu = [
+  const adminMenu = [
     {
       id: 1,
       icon: <UserOutlined />,
@@ -78,43 +80,57 @@ function LeftMenu() {
     },
   ]
 
+  // 监视当前路由的切换，设置左侧菜单选择状态
   useEffect(() => {
     const key = location.pathname.split('/')[1]
     setSelectKey(key)
   }, [location.pathname])
 
+  // 获取当前登录页面用户的权限
+  useEffect(() => {
+    const username = localStorage.getItem("username_react")
+    myAxiosApi({ url: "/my/userinfo/auth", method: "post", data: { username } })
+      .then(data => setAuth(data.auth))
+  }, [])
+
   return (
     <Sider
-      breakpoint="lg"
+      breakpoint="xl"
       collapsedWidth="96"
       collapsible='true'
     >
       <div className="logo"></div>
       <Menu theme="dark" mode="inline" selectedKeys={[selectKey]}>
         {
-          menu.map(item => (
+          auth === 1 ? adminMenu.map(item => (
             <Menu.Item key={item.key} icon={item.icon} onClick={item.onClick}>
               {item.title}
             </Menu.Item>
-          ))
+          )) :
+            adminMenu.slice(2).map(item => (
+              <Menu.Item key={item.key} icon={item.icon} onClick={item.onClick}>
+                {item.title}
+              </Menu.Item>
+            ))
         }
       </Menu>
-    </Sider>
+    </Sider >
   )
 }
 
 //右侧区域内容
 function Right() {
   let navigate = useNavigate();
-  // 表单弹出框状态
+  // 修改密码表单弹出框状态
   const [visible, setVisible] = useState(false)
   // 表单成功的执行函数
   const onCreate = (values) => {
-    changePwdApi(values).then((res) => {
-      if (res.data.status === 0) {
-        message.success(res.data.msg)
+    myAxiosApi({ url: "/my/updatepwd", method: "POST", data: values }).then((res) => {
+      if (res.status === 0) {
+        message.success(res.msg)
+        navigate("/login", { replace: true })
       } else {
-        message.error(res.data.message)
+        message.error(res.message)
       }
     })
     setVisible(false);
@@ -135,8 +151,8 @@ function Right() {
       <Menu.Item key="1">
         <span style={{ display: 'block' }}
           onClick={() => {
-            userLogoutApi().then(res => {
-              message.success(res.data.message)
+            myAxiosApi({ url: "/api/logout", method: "post" }).then(res => {
+              message.success(res.message)
               navigate('/login', { replace: true })
             })
           }}>退出登录</span>
@@ -176,6 +192,15 @@ function Right() {
 
 
 export default function Home() {
+  // 检测未登录强制跳转
+  useEffect(() => {
+    if (localStorage.getItem('token')) {
+      return
+    } else {
+      window.location.replace('/login')
+    }
+  }, [])
+
   return (
     <div className='home'>
       <Layout>

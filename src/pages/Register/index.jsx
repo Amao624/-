@@ -4,28 +4,28 @@ import { Form, Input, Button, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom'
 //导入api
-import { registerApi } from '../../api/user'
+import { myAxiosApi } from '../../api/http'
 
 import logo from '../../assets/images/logo.png'
 
 import './reguser.less'
 
 export default function Register() {
-
+    // 表单提交执行函数
     const onFinish = (value) => {
         const { password, repassword } = value
         if (password === repassword) {
-            registerApi(value).then((res) => {
-                console.log(res);
-                if (res.data.status === 0) {
-                    message.success(res.data.message)
-                    setTimeout(() => {
-                        window.location.replace('/login')
-                    }, 2000)
-                } else {
-                    message.error(res.data.message)
-                }
-            })
+            myAxiosApi({ url: '/api/reguser', method: 'post', data: value })
+                .then((res) => {
+                    if (res.status === 0) {
+                        message.success(res.message)
+                        setTimeout(() => {
+                            window.location.replace('/login')
+                        }, 1500)
+                    } else {
+                        message.error(res.message)
+                    }
+                })
         } else {
             message.error('两次输入的密码不同')
         }
@@ -44,7 +44,6 @@ export default function Register() {
                     className="reguser-form"
                     onFinish={onFinish}
                     layout="vertical"
-                // onFinishFailed={this.onFinishFailed}
                 >
                     <Form.Item
                         name="username"

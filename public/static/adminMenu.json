@@ -1,0 +1,32 @@
+{
+    "0": {
+        "id": 1,
+        "icon": "<UserOutlined />",
+        "title": "用户列表",
+        "key": "user"
+    },
+    "1":{
+        "id": 2,
+        "icon": "<UploadOutlined />",
+        "title": "文章分类列表",
+        "key": "artcates"
+    },
+    "2":{
+        "id": 3,
+        "icon": "<VideoCameraOutlined />",
+        "title": "文章",
+        "key": "articles"
+    },
+    "3":{
+        "id": 4,
+        "icon": "<EditOutlined />",
+        "title": "文章编辑",
+        "key": "edit"
+    },
+    "4":{
+        "id": 5,
+        "icon": "<SmileOutlined />",
+        "title": "个人中心",
+        "key": "profile"
+    }
+}

@@ -40,7 +40,7 @@ export default function ChangePwdFrom({ visible, onCreate, onCancel }) {
                         },
                     ]}
                 >
-                    <Input />
+                    <Input type="password"/>
                 </Form.Item>
                 <Form.Item
                     name="newPwd"
@@ -54,7 +54,7 @@ export default function ChangePwdFrom({ visible, onCreate, onCancel }) {
                         },
                     ]}
                 >
-                    <Input />
+                    <Input type="password"/>
                 </Form.Item>
             </Form>
         </Modal>

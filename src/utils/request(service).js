@@ -23,9 +23,8 @@ service.interceptors.request.use(function (config) {
 service.interceptors.response.use(function (response) {
     const { status } = response.data
     if (status === 200) {
-        // 此时，说明 token 失效，直接移除 token 即可
+        // 此时退出登录，说明 token 失效，直接移除 token 即可
         localStorage.removeItem('token')
-        localStorage.removeItem('index-menu')
         localStorage.removeItem('username_react')
     }
     return response
