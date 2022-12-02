@@ -1,11 +1,11 @@
-import React, {useState, useEffect} from 'react';
-import {useLocation} from 'react-router-dom';
-import {Breadcrumb} from 'antd';
-import {HomeOutlined} from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { Breadcrumb } from 'antd';
+import { HomeOutlined } from '@ant-design/icons';
 
 export default function Bread() {
     const [breadName, setBreadName] = useState('')
-    const {pathname} = useLocation()
+    const { pathname } = useLocation()
     // 监听的路由  /user /artcate /articles /profile
     useEffect(() => {
         switch (pathname) {
@@ -32,7 +32,7 @@ export default function Bread() {
     return (
         <Breadcrumb>
             <Breadcrumb.Item href="/user">
-                <HomeOutlined/>
+                <HomeOutlined />
             </Breadcrumb.Item>
             <Breadcrumb.Item href={pathname}>{breadName}</Breadcrumb.Item>
         </Breadcrumb>

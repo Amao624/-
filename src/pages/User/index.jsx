@@ -95,13 +95,15 @@ export default function User() {
         },
         {
             title: 'Tags',
-            key: 'tags',
-            dataIndex: 'tags',
-            render: (index) => (
-                <Tag color='green' key={index}>
-                    管理员
-                </Tag>
-            ),
+            key: 'auth',
+            dataIndex: 'auth',
+            render: (text) => {
+                return (
+                    <Tag color={text !== 0 ? 'red' : 'green'}>
+                        {text === 0 ? '用户' : '管理员'}
+                    </Tag>
+                )
+            },
         },
         {
             title: '操作',
